@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MyMeds</title>
+  <link rel="manifest" href="/mymeds/manifest.json">
+  <meta name="theme-color" content="#307FE2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MyMeds">
+  <link rel="apple-touch-icon" href="/mymeds/icons/icon-192.png">
+  <link rel="stylesheet" href="/mymeds/css/app.css">
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen" style="display:none">
+  <h1>MyMeds</h1>
+  <p>Enter your PIN to continue</p>
+  <div class="pin-dots">
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+    <div class="pin-dot"></div>
+  </div>
+  <div id="pin-error" class="pin-error"></div>
+  <div class="pin-pad" id="pin-pad">
+    <button class="pin-btn" data-val="1">1</button>
+    <button class="pin-btn" data-val="2">2</button>
+    <button class="pin-btn" data-val="3">3</button>
+    <button class="pin-btn" data-val="4">4</button>
+    <button class="pin-btn" data-val="5">5</button>
+    <button class="pin-btn" data-val="6">6</button>
+    <button class="pin-btn" data-val="7">7</button>
+    <button class="pin-btn" data-val="8">8</button>
+    <button class="pin-btn" data-val="9">9</button>
+    <button class="pin-btn wide" data-val="del">⌫</button>
+    <button class="pin-btn" data-val="0">0</button>
+    <div></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <h1>💊 MyMeds</h1>
+  <button id="lock-btn">🔒 Lock</button>
+</header>
+
+<!-- VIEWS -->
+<main>
+  <div class="view active" id="view-today"></div>
+  <div class="view" id="view-scripts"></div>
+  <div class="view" id="view-doses"></div>
+  <div class="view" id="view-repeats"></div>
+  <div class="view" id="view-caregiver"></div>
+
+  <!-- ADD VIEW -->
+  <div class="view" id="view-add">
+    <p class="section-head">Add New Medication</p>
+    <form id="add-form">
+      <div class="form-group">
+        <label>Medication name (pharmaceutical) *</label>
+        <input name="medName" required placeholder="e.g. Metformin">
+      </div>
+      <div class="form-group">
+        <label>Brand name</label>
+        <input name="brandName" placeholder="e.g. Glucophage">
+      </div>
+      <div class="form-group">
+        <label>Dose / instructions</label>
+        <input name="dose" placeholder="e.g. 500mg twice daily">
+      </div>
+      <div class="form-group">
+        <label>Times taken</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+          <label style="color:var(--text)"><input type="checkbox" name="times" value="morning"> 🌅 Morning</label>
+          <label style="color:var(--text)"><input type="checkbox" name="times" value="midday"> ☀️ Midday</label>
+          <label style="color:var(--text)"><input type="checkbox" name="times" value="evening"> 🌆 Evening</label>
+          <label style="color:var(--text)"><input type="checkbox" name="times" value="night"> 🌙 Night</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Repeats on script</label>
+        <input name="repeats" type="number" min="0" placeholder="e.g. 5">
+      </div>
+      <div class="form-group">
+        <label>Repeats already used (if starting mid-cycle)</label>
+        <input name="repeatsUsed" type="number" min="0" value="0">
+      </div>
+      <div class="form-group">
+        <label>Script expiry date</label>
+        <input name="expiryDate" type="date">
+      </div>
+      <div class="form-group">
+        <label>Prescribing doctor</label>
+        <input name="doctor" placeholder="e.g. Smith">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea name="notes" placeholder="Any extra notes..."></textarea>
+      </div>
+      <div class="taper-toggle">
+        <input type="checkbox" id="taper-toggle">
+        <label for="taper-toggle" style="color:var(--taper)">⚠️ This medication has a tapering/special dosing schedule</label>
+      </div>
+      <div id="taper-area" class="form-group">
+        <label>Tapering instructions</label>
+        <textarea name="taperNotes" placeholder="e.g. Week 1: 2 tabs, Week 2: 1.5 tabs..."></textarea>
+      </div>
+      <button class="submit-btn" type="submit">💾 Save Medication</button>
+    </form>
+  </div>
+</main>
+
+<!-- BOTTOM TABS -->
+<nav>
+  <button class="tab-btn active" data-tab="today"><span class="icon">🏠</span>Today</button>
+  <button class="tab-btn" data-tab="scripts"><span class="icon">📋</span>Scripts</button>
+  <button class="tab-btn" data-tab="doses"><span class="icon">📅</span>Doses</button>
+  <button class="tab-btn" data-tab="repeats"><span class="icon">🔁</span>Repeats</button>
+  <button class="tab-btn" data-tab="add"><span class="icon">➕</span>Add</button>
+  <button class="tab-btn" data-tab="caregiver"><span class="icon">👁️</span>Carer</button>
+</nav>
+
+<!-- TAPER VIEW SHEET -->
+<div class="overlay" id="taper-view-overlay">
+  <div class="sheet">
+    <button class="sheet-close">✕</button>
+    <h3>⚠️ Tapering Schedule</h3>
+    <p id="taper-text-display" style="white-space:pre-wrap;font-size:0.9rem;line-height:1.6;margin-top:8px"></p>
+    <div class="sheet-btns" style="margin-top:16px">
+      <button class="sheet-btn sheet-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAPER EDIT SHEET -->
+<div class="overlay" id="taper-edit-overlay">
+  <div class="sheet">
+    <button class="sheet-close">✕</button>
+    <h3>✏️ Edit Tapering Notes</h3>
+    <textarea id="taper-edit-input" placeholder="Enter tapering schedule..."></textarea>
+    <div class="sheet-btns">
+      <button class="sheet-btn danger" id="taper-remove-btn">Remove</button>
+      <button class="sheet-btn primary" id="taper-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/mymeds/js/app.js"></script>
+</body>
+</html>

@@ -24,7 +24,13 @@ export async function renderTracker() {
   for (const s of scripts) {
     const times = s.times || ['morning'];
     const activeBuckets = BUCKETS.filter(b => times.includes(b.key));
-    html += `<div class="med-dose-block"><h3>${s.name}</h3><div class="bucket-grid">`;
+
+    // Show brand name if available, pharmaceutical in smaller text beneath
+    const nameHtml = s.brandName
+      ? `<h3 class="med-dose-name">${s.brandName} <span class="med-dose-pharm">${s.name}</span></h3>`
+      : `<h3 class="med-dose-name">${s.name}</h3>`;
+
+    html += `<div class="med-dose-block">${nameHtml}<div class="bucket-grid">`;
     for (const b of activeBuckets) {
       const key = `${s.id}_${b.key}`;
       const dose = todayDoses.find(d => d.bucketKey === key);

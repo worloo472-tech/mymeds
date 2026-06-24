@@ -14,6 +14,63 @@
 </head>
 <body>
 
+<!-- ONBOARDING EXPLAINER (shown once on first launch) -->
+<div id="onboarding-screen" style="display:none">
+  <div class="onboard-wrap">
+    <div class="onboard-logo">💊 MyMeds</div>
+    <h2 class="onboard-title">Welcome to MyMeds</h2>
+    <p class="onboard-sub">Here's a quick guide to get you started</p>
+
+    <div class="onboard-steps">
+      <div class="onboard-step">
+        <span class="onboard-icon">➕</span>
+        <div>
+          <strong>Add</strong>
+          <p>Tap the <em>Add</em> tab to enter each medication. You'll need the name, dose, and your script details.</p>
+        </div>
+      </div>
+      <div class="onboard-step">
+        <span class="onboard-icon">🏠</span>
+        <div>
+          <strong>Today</strong>
+          <p>Each morning, this screen shows all your medications. Tap each time slot as you take them.</p>
+        </div>
+      </div>
+      <div class="onboard-step">
+        <span class="onboard-icon">📅</span>
+        <div>
+          <strong>Doses</strong>
+          <p>Track morning, midday, evening and night doses — or mark <em>Unsure</em> if you can't remember.</p>
+        </div>
+      </div>
+      <div class="onboard-step">
+        <span class="onboard-icon">🔁</span>
+        <div>
+          <strong>Repeats</strong>
+          <p>Log each time you collect a repeat prescription. The app tracks how many you have left.</p>
+        </div>
+      </div>
+      <div class="onboard-step">
+        <span class="onboard-icon">👁️</span>
+        <div>
+          <strong>Carer</strong>
+          <p>Share a quick snapshot of today's medications with a family member or carer — one tap to send.</p>
+        </div>
+      </div>
+      <div class="onboard-step">
+        <span class="onboard-icon">📋</span>
+        <div>
+          <strong>Scripts</strong>
+          <p>View all your prescriptions, expiry dates, and repeats remaining in one place.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="onboard-note">💾 All your data stays on this device — nothing is sent anywhere.</p>
+    <button class="onboard-btn" id="onboard-start-btn">Let's get started →</button>
+  </div>
+</div>
+
 <!-- PIN SCREEN -->
 <div id="pin-screen" style="display:none">
   <h1>MyMeds</h1>
@@ -81,16 +138,21 @@
         </div>
       </div>
       <div class="form-group">
+        <label>Date prescribed</label>
+        <input name="prescribedDate" type="date" id="prescribed-date-input">
+        <small style="color:var(--text-muted);display:block;margin-top:4px">Expiry will auto-fill to 1 year from this date</small>
+      </div>
+      <div class="form-group">
+        <label>Script expiry date</label>
+        <input name="expiryDate" type="date" id="expiry-date-input">
+      </div>
+      <div class="form-group">
         <label>Repeats on script</label>
         <input name="repeats" type="number" min="0" placeholder="e.g. 5">
       </div>
       <div class="form-group">
         <label>Repeats already used (if starting mid-cycle)</label>
         <input name="repeatsUsed" type="number" min="0" value="0">
-      </div>
-      <div class="form-group">
-        <label>Script expiry date</label>
-        <input name="expiryDate" type="date">
       </div>
       <div class="form-group">
         <label>Prescribing doctor</label>

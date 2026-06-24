@@ -25,8 +25,13 @@ export async function renderToday() {
   for (const s of scripts) {
     const times = s.times || ['morning'];
     const activeBuckets = BUCKETS.filter(b => times.includes(b.key));
+    // Show brand name first (what most people know), pharmaceutical beneath
+    const nameHtml = s.brandName
+      ? `<div class="today-med-name">${s.brandName} <span style="font-weight:400;font-size:0.82rem;color:var(--text-muted)">${s.name}</span></div>`
+      : `<div class="today-med-name">${s.name}</div>`;
+
     html += `<div class="today-med-card">
-      <div class="today-med-name">${s.name}${s.brandName ? ` <span style="font-weight:400;font-size:0.8rem;color:var(--text-muted)">(${s.brandName})</span>` : ''}</div>
+      ${nameHtml}
       <div class="today-med-dose">${s.dose || ''}</div>
       ${s.taperNotes ? `<div class="taper-badge" onclick="window._showTaper('${s.id}')">⚠️ Tapering — tap to view</div>` : ''}
       <div class="quick-btns mt">`;

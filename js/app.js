@@ -1,4 +1,4 @@
-import { initDB, getScripts, saveScript } from './store.js';
+import { initDB, getScripts, saveScript, getSetting, setSetting } from './store.js';
 import { checkPin, initPin, lockApp } from './components/pin.js';
 import { initModals } from './components/modals.js';
 import { renderToday } from './views/today.js';
@@ -30,6 +30,21 @@ function initTabs() {
   });
 }
 
+// Auto-fill expiry date to 1 year after prescribed date
+function initPrescribedDateAutoFill() {
+  const prescribedInput = document.getElementById('prescribed-date-input');
+  const expiryInput = document.getElementById('expiry-date-input');
+  if (prescribedInput && expiryInput) {
+    prescribedInput.addEventListener('change', () => {
+      if (prescribedInput.value && !expiryInput.value) {
+        const d = new Date(prescribedInput.value);
+        d.setFullYear(d.getFullYear() + 1);
+        expiryInput.value = d.toISOString().split('T')[0];
+      }
+    });
+  }
+}
+
 function initAddForm() {
   document.getElementById('taper-toggle').addEventListener('change', e => {
     document.getElementById('taper-area').style.display = e.target.checked ? 'block' : 'none';
@@ -46,6 +61,7 @@ function initAddForm() {
       name: f.medName.value.trim(),
       brandName: f.brandName.value.trim(),
       dose: f.dose.value.trim(),
+      prescribedDate: f.prescribedDate.value || null,
       repeats,
       repeatsUsed: used,
       repeatsRemaining: Math.max(0, repeats - used),
@@ -64,17 +80,66 @@ function initAddForm() {
   });
 }
 
+// Show onboarding screen on very first launch
+async function checkOnboarding() {
+  const seen = await getSetting('onboarding_done');
+  if (!seen) {
+    document.getElementById('onboarding-screen').style.display = 'flex';
+    document.getElementById('onboard-start-btn').addEventListener('click', async () => {
+      await setSetting('onboarding_done', true);
+      document.getElementById('onboarding-screen').style.display = 'none';
+    });
+    return true; // onboarding shown, skip rest of init until dismissed
+  }
+  return false;
+}
+
 async function init() {
   await initDB();
+
+  // Show onboarding on very first launch
+  const onboardingShown = await checkOnboarding();
+  if (onboardingShown) {
+    // After they dismiss onboarding, complete the rest of init
+    document.getElementById('onboard-start-btn').addEventListener('click', async () => {
+      initPin();
+      initModals();
+      await checkPin();
+      initTabs();
+      initAddForm();
+      initPrescribedDateAutoFill();
+      document.getElementById('lock-btn').addEventListener('click', lockApp);
+      switchTab('today');
+    }, { once: true });
+    return;
+  }
+
   initPin();
   initModals();
   await checkPin();
   initTabs();
   initAddForm();
+  initPrescribedDateAutoFill();
   document.getElementById('lock-btn').addEventListener('click', lockApp);
+
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/mymeds/sw.js').catch(console.error);
+    const reg = await navigator.serviceWorker.register('/mymeds/sw.js').catch(console.error);
+    if (reg) {
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New version of the app is available
+            const reload = confirm(
+              'MyMeds has been updated with new features.\n\nTap OK to reload and use the latest version.\n\n(Your medication data is safe — it stays on this device.)'
+            );
+            if (reload) window.location.reload();
+          }
+        });
+      });
+    }
   }
+
   switchTab('today');
 }
 

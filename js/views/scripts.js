@@ -16,14 +16,21 @@ export async function renderScripts() {
     const daysLeft = exp ? Math.ceil((exp - Date.now()) / 86400000) : null;
     const expClass = daysLeft !== null && daysLeft <= 7 ? 'color:var(--warn)' : 'color:var(--text-muted)';
 
+    const prescribed = s.prescribedDate ? new Date(s.prescribedDate).toLocaleDateString('en-AU') : null;
+
+    // Display both pharmaceutical name and brand name prominently
+    const nameDisplay = s.brandName
+      ? `<div class="card-title">${s.brandName} <span style="font-weight:400;font-size:0.85rem;color:var(--text-muted)">(${s.name})</span></div>`
+      : `<div class="card-title">${s.name}</div>`;
+
     html += `<div class="card script-card">
       <div class="row">
-        <div class="card-title">${s.name}</div>
-        ${s.brandName ? `<span class="chip">${s.brandName}</span>` : ''}
+        ${nameDisplay}
       </div>
       <div class="card-sub mt">${s.dose || '—'}</div>
       ${s.doctor ? `<div class="card-sub">Dr ${s.doctor}</div>` : ''}
-      ${exp ? `<div class="card-sub mt" style="${expClass}">Expiry: ${exp.toLocaleDateString('en-AU')}${daysLeft <= 7 ? ' ⚠️' : ''}</div>` : ''}
+      ${prescribed ? `<div class="card-sub mt" style="color:var(--text-muted)">Prescribed: ${prescribed}</div>` : ''}
+      ${exp ? `<div class="card-sub" style="${expClass}">Expiry: ${exp.toLocaleDateString('en-AU')}${daysLeft !== null && daysLeft <= 7 ? ' ⚠️' : ''}</div>` : ''}
       ${s.repeatsRemaining !== undefined ? `<div class="card-sub">Repeats remaining: ${s.repeatsRemaining}</div>` : ''}
       ${s.taperNotes ? `<div class="taper-badge" onclick="window._viewTaper('${s.id}')">⚠️ Tapering — tap to view</div>` : ''}
       <div class="script-actions">

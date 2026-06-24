@@ -27,7 +27,12 @@ export async function renderCollect() {
       ${s.dose ? `<div class="card-sub">${s.dose}</div>` : ''}
       ${s.doctor ? `<div class="card-sub">Dr ${s.doctor}</div>` : ''}
       ${exp ? `<div class="card-sub mt" style="${daysLeft <= 14 ? 'color:var(--warn)' : 'color:var(--text-muted)'}">Script expires: ${exp.toLocaleDateString('en-AU')}${daysLeft <= 14 ? ' ⚠️' : ''}</div>` : ''}
-      <button class="collect-btn" onclick="window._logCollection('${s.id}')">✅ Log collection</button>
+      <div id="collect-confirm-${s.id}" style="display:none" class="collect-confirm-row">
+        <span class="collect-confirm-msg">Confirm collection logged?</span>
+        <button class="collect-confirm-btn yes" onclick="window._confirmCollection('${s.id}')">✅ Yes</button>
+        <button class="collect-confirm-btn no" onclick="window._cancelCollection('${s.id}')">✕ No</button>
+      </div>
+      <button class="collect-btn" id="collect-btn-${s.id}" onclick="window._logCollection('${s.id}')">✅ Log collection</button>
       ${isLow ? `<a href="sms:?body=${smsBody}" style="display:block;text-align:center;margin-top:8px;font-size:0.8rem;color:var(--accent)">📱 SMS pharmacy reminder</a>` : ''}
     </div>`;
   }
@@ -42,14 +47,22 @@ export async function renderCollect() {
 
   el.innerHTML = html;
 
-  window._logCollection = async id => {
+  window._logCollection = id => {
+    document.getElementById(`collect-btn-${id}`).style.display = 'none';
+    document.getElementById(`collect-confirm-${id}`).style.display = 'flex';
+  };
+
+  window._cancelCollection = id => {
+    document.getElementById(`collect-confirm-${id}`).style.display = 'none';
+    document.getElementById(`collect-btn-${id}`).style.display = 'block';
+  };
+
+  window._confirmCollection = async id => {
     const s = scripts.find(x => x.id === id);
     if (!s) return;
-    if (confirm(`Log collection for ${s.name}?`)) {
-      s.repeatsRemaining = Math.max(0, (s.repeatsRemaining ?? s.repeats ?? 0) - 1);
-      await saveScript(s);
-      await saveCollection({ id: `col_${Date.now()}`, scriptId: id, scriptName: s.name, ts: Date.now() });
-      renderCollect();
-    }
+    s.repeatsRemaining = Math.max(0, (s.repeatsRemaining ?? s.repeats ?? 0) - 1);
+    await saveScript(s);
+    await saveCollection({ id: `col_${Date.now()}`, scriptId: id, scriptName: s.name, ts: Date.now() });
+    renderCollect();
   };
 }

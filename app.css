@@ -318,3 +318,23 @@ nav {
   border: 2px solid var(--border); border-radius: 8px;
   color: var(--text); font-size: 0.85rem; font-weight: 600; cursor: pointer;
 }
+
+/* INLINE COLLECTION CONFIRM */
+.collect-confirm-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px; flex-wrap: wrap;
+}
+.collect-confirm-msg {
+  flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--text);
+}
+.collect-confirm-btn {
+  padding: 10px 18px; border-radius: 8px;
+  border: 2px solid var(--border); font-size: 0.9rem;
+  font-weight: 700; cursor: pointer; background: var(--card); color: var(--text);
+}
+.collect-confirm-btn.yes {
+  background: var(--accent2); border-color: var(--accent2); color: #fff;
+}
+.collect-confirm-btn.no {
+  background: var(--card); color: var(--text-muted);
+}

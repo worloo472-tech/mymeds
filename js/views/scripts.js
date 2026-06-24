@@ -35,7 +35,12 @@ export async function renderScripts() {
       ${s.taperNotes ? `<div class="taper-badge" onclick="window._viewTaper('${s.id}')">⚠️ Tapering — tap to view</div>` : ''}
       <div class="script-actions">
         <button class="script-btn" onclick="window._editTaper('${s.id}')">✏️ Taper notes</button>
-        <button class="script-btn danger" onclick="window._deleteScript('${s.id}')">🗑 Delete</button>
+        <div id="del-confirm-${s.id}" style="display:none" class="collect-confirm-row">
+          <span class="collect-confirm-msg">Delete this medication?</span>
+          <button class="collect-confirm-btn yes" onclick="window._confirmDeleteScript('${s.id}')">Yes, delete</button>
+          <button class="collect-confirm-btn no" onclick="window._cancelDeleteScript('${s.id}')">Cancel</button>
+        </div>
+        <button class="script-btn danger" id="del-btn-${s.id}" onclick="window._deleteScript('${s.id}')">🗑 Delete</button>
       </div>
     </div>`;
   }
@@ -58,10 +63,16 @@ export async function renderScripts() {
     });
   };
 
-  window._deleteScript = async id => {
-    if (confirm('Delete this medication?')) {
-      await deleteScript(id);
-      renderScripts();
-    }
+  window._deleteScript = id => {
+    document.getElementById(`del-btn-${id}`).style.display = 'none';
+    document.getElementById(`del-confirm-${id}`).style.display = 'flex';
+  };
+  window._cancelDeleteScript = id => {
+    document.getElementById(`del-confirm-${id}`).style.display = 'none';
+    document.getElementById(`del-btn-${id}`).style.display = 'block';
+  };
+  window._confirmDeleteScript = async id => {
+    await deleteScript(id);
+    renderScripts();
   };
 }
